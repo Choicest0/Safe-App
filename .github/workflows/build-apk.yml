@@ -29,10 +29,62 @@ jobs:
           npx cap add android
           npx cap sync android
 
-      - name: Inject Offline SMS & Background GPS Permissions
+      - name: Inject Offline SMS & GPS Permissions
         run: |
           MANIFEST="android/app/src/main/AndroidManifest.xml"
           sed -i 's/<uses-permission android:name="android.permission.INTERNET" \/>/<uses-permission android:name="android.permission.INTERNET" \/>\n    <uses-permission android:name="android.permission.SEND_SMS" \/>\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" \/>\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" \/>\n    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" \/>/' $MANIFEST
+
+      - name: Inject Native Android SIM SMS Bridge into MainActivity
+        run: |
+          MAIN_ACT=$(find android/app/src/main/java -name "MainActivity.java")
+          cat << 'EOF' > "$MAIN_ACT"
+          package com.saferoute.guard.offline;
+
+          import android.Manifest;
+          import android.content.pm.PackageManager;
+          import android.os.Bundle;
+          import android.telephony.SmsManager;
+          import android.webkit.JavascriptInterface;
+          import android.widget.Toast;
+          import androidx.core.app.ActivityCompat;
+          import androidx.core.content.ContextCompat;
+          import com.getcapacitor.BridgeActivity;
+
+          public class MainActivity extends BridgeActivity {
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  requestAppPermissions();
+                  this.bridge.getWebView().addJavascriptInterface(new OfflineSmsBridge(), "AndroidSmsBridge");
+              }
+
+              private void requestAppPermissions() {
+                  String[] perms = {
+                      Manifest.permission.SEND_SMS,
+                      Manifest.permission.ACCESS_FINE_LOCATION,
+                      Manifest.permission.ACCESS_COARSE_LOCATION
+                  };
+                  ActivityCompat.requestPermissions(this, perms, 101);
+              }
+
+              public class OfflineSmsBridge {
+                  @JavascriptInterface
+                  public void sendSms(String phone, String message) {
+                      try {
+                          if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
+                              SmsManager smsManager = SmsManager.getDefault();
+                              smsManager.sendTextMessage(phone, null, message, null, null);
+                              runOnUiThread(() -> Toast.makeText(MainActivity.this, "Offline SMS Sent to Guardian!", Toast.LENGTH_LONG).show());
+                          } else {
+                              runOnUiThread(() -> Toast.makeText(MainActivity.this, "Please allow SMS permission in Settings!", Toast.LENGTH_LONG).show());
+                          }
+                      } catch (Exception e) {
+                          runOnUiThread(() -> Toast.makeText(MainActivity.this, "SMS Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                      }
+                  }
+              }
+          }
+          EOF
 
       - name: Build Debug APK
         run: |
