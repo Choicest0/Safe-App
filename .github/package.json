@@ -1,0 +1,12 @@
+{
+  "name": "saferoute-guard-offline",
+  "version": "1.0.0",
+  "description": "Offline SMS School Hour & Fight Detection Safety App",
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/geolocation": "^6.0.0",
+    "capacitor-sms-sender": "^1.0.2"
+  }
+}
