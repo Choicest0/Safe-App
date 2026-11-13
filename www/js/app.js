@@ -13,14 +13,14 @@ function addLog(msg) {
   const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const li = document.createElement("li");
   li.innerHTML = `<span class="dot"></span> [${time}] ${msg}`;
-  document.getElementById("sms-log-list").prepend(li);
+  document.getElementById("sms-log-list")?.prepend(li);
 }
 
 function addParentTimeline(msg) {
   const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const li = document.createElement("li");
   li.innerHTML = `<span class="dot"></span> <strong>${msg}</strong> — ${time}`;
-  document.getElementById("timeline-list").prepend(li);
+  document.getElementById("timeline-list")?.prepend(li);
 }
 
 const smsEngine = new OfflineSmsEngine(addLog);
@@ -44,18 +44,31 @@ const geofence = new GeofenceEngine((newState) => {
   }
 });
 
-// Offline Hardware GPS Watch (Works with 0% Internet)
-if (navigator.geolocation) {
-  navigator.geolocation.watchPosition(
-    (pos) => {
-      latestCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      const res = geofence.evaluate(latestCoords);
-      document.getElementById("distance-text").textContent = `Distance to Home: ${res.distHomeKm} km`;
-    },
-    () => addLog("Waiting for clear outdoor GPS satellite signal"),
-    { enableHighAccuracy: true }
-  );
+// Start Hardware GPS Watch (Works offline via GPS satellites)
+function startOfflineGPS() {
+  const onPosition = (pos) => {
+    latestCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    const res = geofence.evaluate(latestCoords);
+    document.getElementById("distance-text").textContent = `Distance to Home: ${res.distHomeKm} km`;
+  };
+
+  const onError = () => {
+    document.getElementById("distance-text").textContent = "Step outdoors / near window for GPS";
+  };
+
+  if (window.Capacitor?.Plugins?.Geolocation) {
+    window.Capacitor.Plugins.Geolocation.watchPosition(
+      { enableHighAccuracy: true, timeout: 15000 },
+      (pos, err) => {
+        if (pos) onPosition(pos);
+        else if (err) onError();
+      }
+    );
+  } else if (navigator.geolocation) {
+    navigator.geolocation.watchPosition(onPosition, onError, { enableHighAccuracy: true });
+  }
 }
+startOfflineGPS();
 
 // Automatic Fight / Violent Shake Sensor with 10-second Cancel Window
 const fightDetector = new FightDetector((force) => {
@@ -82,41 +95,38 @@ const fightDetector = new FightDetector((force) => {
 });
 fightDetector.start();
 
-document.getElementById("cancel-fight-btn").addEventListener("click", () => {
+document.getElementById("cancel-fight-btn")?.addEventListener("click", () => {
   clearInterval(countdownTimer);
   document.getElementById("fight-modal").classList.add("hidden");
   addLog("Fight alert canceled by student");
 });
 
-// Toggle Fight Sensor ON/OFF on Alert Hub
-document.getElementById("btn-fight-sensor").addEventListener("click", () => {
+document.getElementById("btn-fight-sensor")?.addEventListener("click", () => {
   const isOn = fightDetector.toggle();
   document.getElementById("sensor-status").textContent = isOn ? "Fight Sensor: ON" : "Fight Sensor: OFF";
   addLog(`Fight Sensor turned ${isOn ? "ON" : "OFF"}`);
 });
 
-// Manual SOS, Fight, Home Safe & GPS SMS Buttons
-document.getElementById("sos-trigger-btn").addEventListener("click", () => {
+document.getElementById("sos-trigger-btn")?.addEventListener("click", () => {
   smsEngine.sendSilentOfflineSMS("SOS EMERGENCY: Immediate Help Needed", latestCoords, true);
   addParentTimeline("Manual SOS Alert Sent");
 });
 
-document.getElementById("btn-fight-manual").addEventListener("click", () => {
+document.getElementById("btn-fight-manual")?.addEventListener("click", () => {
   smsEngine.sendSilentOfflineSMS("PROBLEM ALERT: Student Reported Fight / Bullying", latestCoords, true);
   addParentTimeline("Fight / Bullying Reported");
 });
 
-document.getElementById("btn-safe-home").addEventListener("click", () => {
+document.getElementById("btn-safe-home")?.addEventListener("click", () => {
   smsEngine.sendSilentOfflineSMS("SAFE ARRIVAL: Student Confirmed Reached Home", latestCoords, true);
   addParentTimeline("Confirmed Reached Home");
 });
 
-document.getElementById("btn-share-gps").addEventListener("click", () => {
+document.getElementById("btn-share-gps")?.addEventListener("click", () => {
   smsEngine.sendSilentOfflineSMS("LIVE GPS CHECK-IN", latestCoords, true);
 });
 
-// Loud Deterrent Siren
-document.getElementById("btn-siren").addEventListener("click", (e) => {
+document.getElementById("btn-siren")?.addEventListener("click", (e) => {
   if (sirenOsc) {
     sirenOsc.stop();
     sirenOsc = null;
@@ -132,7 +142,6 @@ document.getElementById("btn-siren").addEventListener("click", (e) => {
   e.currentTarget.querySelector("h3").textContent = "STOP SIREN";
 });
 
-// Display Guardian Info & Battery
 document.getElementById("guardian-display").textContent = CONFIG.primaryGuardianPhone;
 if (navigator.getBattery) {
   navigator.getBattery().then((bat) => {
