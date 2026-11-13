@@ -27,7 +27,6 @@
         <span id="zone-status">On Route to Home • GPS Active</span>
       </div>
 
-      <!-- Visual Commute Route Canvas (Works 100% Offline) -->
       <div class="route-visual-card">
         <svg class="route-svg" viewBox="0 0 320 210">
           <g stroke="rgba(140, 233, 198, 0.06)" stroke-width="1">
@@ -38,43 +37,33 @@
             <line x1="160" y1="0" x2="160" y2="210" />
             <line x1="250" y1="0" x2="250" y2="210" />
           </g>
-
-          <!-- Glowing Blue Route Path -->
           <path d="M 55 55 L 120 55 L 120 115 L 210 115 L 210 160 L 265 160"
                 fill="none" stroke="#38bdf8" stroke-width="5" stroke-linecap="round"
                 stroke-linejoin="round" class="glow-path" />
-
-          <!-- School Pin -->
           <circle cx="55" cy="55" r="16" fill="#ff4757" />
           <text x="55" y="60" text-anchor="middle" font-size="14">🏫</text>
           <text x="55" y="84" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="600">School</text>
-
-          <!-- Student Live Dot -->
           <circle cx="165" cy="115" r="14" fill="rgba(140, 233, 198, 0.25)" class="pulse-ring" />
           <circle cx="165" cy="115" r="8" fill="#8ce9c6" stroke="#0b1528" stroke-width="2" />
-
-          <!-- Home Pin -->
           <circle cx="265" cy="160" r="16" fill="#8ce9c6" />
           <text x="265" y="165" text-anchor="middle" font-size="14">🏠</text>
           <text x="265" y="190" text-anchor="middle" fill="#8ce9c6" font-size="11" font-weight="600">Home</text>
         </svg>
         <div class="distance-footer">
-          <span id="distance-text">Acquiring GPS Distance...</span>
+          <span id="distance-text">Tap SOS or step outside for GPS</span>
           <span class="offline-tag">No Internet Needed</span>
         </div>
       </div>
 
-      <!-- Pulsing Red SOS Button -->
       <div class="sos-wrapper">
-        <button id="sos-trigger-btn" class="sos-button">
+        <button type="button" id="sos-trigger-btn" class="sos-button">
           <span>SOS</span>
           <small>TAP FOR OFFLINE SMS</small>
         </button>
       </div>
 
-      <!-- Quick Fight / Bullying Action Card -->
       <div class="quick-actions">
-        <button id="btn-fight-manual" class="action-card warn">
+        <button type="button" id="btn-fight-manual" class="action-card warn">
           <span class="icon">⚠️</span>
           <div>
             <strong>Report Fight / Bullying</strong>
@@ -88,25 +77,25 @@
     <main id="screen-hub" class="screen">
       <h2 class="section-title">Safety & Fight Alert Hub</h2>
       <div class="hub-grid">
-        <button id="btn-siren" class="hub-card mint">
+        <button type="button" id="btn-siren" class="hub-card mint">
           <div class="icon-circle dark-bg">🚨</div>
-          <h3>Loud Siren & Strobe</h3>
+          <h3 id="siren-label">Loud Siren & Strobe</h3>
           <p>Deter threats immediately</p>
         </button>
 
-        <button id="btn-fight-sensor" class="hub-card dark">
+        <button type="button" id="btn-fight-sensor" class="hub-card dark">
           <div class="icon-circle red-bg">🥊</div>
           <h3 id="sensor-status">Fight Sensor: ON</h3>
           <p>Auto-detects violent struggle</p>
         </button>
 
-        <button id="btn-safe-home" class="hub-card dark">
+        <button type="button" id="btn-safe-home" class="hub-card dark">
           <div class="icon-circle mint-bg">🏠</div>
           <h3>Reached Home</h3>
           <p>Send safe arrival SMS</p>
         </button>
 
-        <button id="btn-share-gps" class="hub-card mint">
+        <button type="button" id="btn-share-gps" class="hub-card mint">
           <div class="icon-circle dark-bg">📍</div>
           <h3>Send GPS SMS</h3>
           <p>Text coordinates to parent</p>
@@ -126,6 +115,16 @@
       <h2 class="section-title">Parent & Guardian</h2>
 
       <div class="card">
+        <h3>Parent Mobile Number</h3>
+        <input type="tel" id="parent-phone-input" placeholder="+919876543210"
+               style="width:100%;padding:12px;border-radius:10px;border:1px solid #8ce9c6;background:#0b1528;color:#fff;font-size:1rem;margin-bottom:10px;" />
+        <button type="button" id="save-phone-btn"
+                style="width:100%;padding:12px;border:none;border-radius:10px;background:#8ce9c6;color:#092018;font-weight:700;cursor:pointer;">
+          Save Guardian Number
+        </button>
+      </div>
+
+      <div class="card">
         <h3>Geofence Check-in Timeline</h3>
         <ul id="timeline-list" class="timeline">
           <li><span class="dot"></span> <strong>School Watch Starts</strong> — 07:00 AM</li>
@@ -135,31 +134,25 @@
 
       <div class="card row-between">
         <span>🔋 Student Phone Battery</span>
-        <strong id="battery-level" style="color: var(--mint);">Checking...</strong>
-      </div>
-
-      <div class="card">
-        <h3>Guardian Emergency Contact</h3>
-        <p id="guardian-display" style="font-size: 1.15rem; font-weight: 700; margin-bottom: 4px;"></p>
-        <small style="color: var(--text-muted);">Receives automatic SIM SMS without internet</small>
+        <strong id="battery-level" style="color: var(--mint);">--%</strong>
       </div>
     </main>
 
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
-      <button class="nav-btn active" data-target="screen-commute">
+      <button type="button" class="nav-btn active" onclick="switchTab('screen-commute', this)">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
         </svg>
         <span>Commute</span>
       </button>
-      <button class="nav-btn" data-target="screen-hub">
+      <button type="button" class="nav-btn" onclick="switchTab('screen-hub', this)">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
         </svg>
         <span>Alert Hub</span>
       </button>
-      <button class="nav-btn" data-target="screen-parent">
+      <button type="button" class="nav-btn" onclick="switchTab('screen-parent', this)">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
         </svg>
@@ -173,10 +166,58 @@
     <div class="modal-box">
       <h2>⚠️ Fight / Impact Detected!</h2>
       <p>Sending Offline SMS to parents in <strong id="countdown-num">10</strong> seconds...</p>
-      <button id="cancel-fight-btn" class="cancel-btn">I AM SAFE (CANCEL ALERT)</button>
+      <button type="button" id="cancel-fight-btn" class="cancel-btn">I AM SAFE (CANCEL ALERT)</button>
     </div>
   </div>
 
-  <script type="module" src="js/app.js"></script>
-</body>
-</html>
+  <script>
+    // Direct inline controller (guaranteed to run without ES module CORS issues)
+    let guardianPhone = localStorage.getItem("guardianPhone") || "+919876543210";
+    let latestCoords = null;
+    let fightSensorOn = true;
+    let sirenCtx = null;
+    let sirenOsc = null;
+    let countdownTimer = null;
+
+    document.getElementById("parent-phone-input").value = guardianPhone;
+
+    function switchTab(screenId, btnEl) {
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      btnEl.classList.add("active");
+      document.getElementById(screenId).classList.add("active");
+    }
+
+    function addLog(msg) {
+      const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const li = document.createElement("li");
+      li.innerHTML = `<span class="dot"></span> [${time}] ${msg}`;
+      document.getElementById("sms-log-list").prepend(li);
+    }
+
+    function sendOfflineSMS(alertTitle) {
+      const gpsText = latestCoords
+        ? `https://google.com{latestCoords.lat.toFixed(5)},${latestCoords.lng.toFixed(5)}`
+        : "GPS Signal Pending (School Route)";
+      const fullMsg = `[SafeRoute Guard] ${alertTitle}. Location: ${gpsText}`;
+
+      if (window.AndroidSmsBridge && typeof window.AndroidSmsBridge.sendSms === "function") {
+        window.AndroidSmsBridge.sendSms(guardianPhone, fullMsg);
+        addLog(`✅ SIM SMS Sent to ${guardianPhone}: ${alertTitle}`);
+      } else {
+        addLog(`📲 Opening SMS App for ${guardianPhone}`);
+        window.location.href = `sms:${guardianPhone}?body=${encodeURIComponent(fullMsg)}`;
+      }
+    }
+
+    // Save Parent Number inside App
+    document.getElementById("save-phone-btn").onclick = () => {
+      const val = document.getElementById("parent-phone-input").value.trim();
+      if (val) {
+        guardianPhone = val;
+        localStorage.setItem("guardianPhone", val);
+        alert("Saved Guardian Number: " + val);
+      }
+    };
+
+    // SOS, Fight, Home & GPS Buttons
