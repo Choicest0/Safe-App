@@ -1,0 +1,6 @@
+{
+  "appId": "com.saferoute.guard.offline",
+  "appName": "SafeRoute Guard",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
