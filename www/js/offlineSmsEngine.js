@@ -18,15 +18,12 @@ export class OfflineSmsEngine {
     const smsText = `[SafeRoute] ${CONFIG.studentName}: ${alertTitle}. Location: ${gpsLink}`;
 
     try {
-      if (window.Capacitor?.Plugins?.SmsSender) {
-        await window.Capacitor.Plugins.SmsSender.send({
-          phoneNumber: CONFIG.primaryGuardianPhone,
-          message: smsText
-        });
-        this.onLog(`✅ Offline SMS Sent: ${alertTitle}`);
+      if (window.AndroidSmsBridge && typeof window.AndroidSmsBridge.sendSms === "function") {
+        window.AndroidSmsBridge.sendSms(CONFIG.primaryGuardianPhone, smsText);
+        this.onLog(`✅ Offline SIM SMS Sent: ${alertTitle}`);
       } else {
-        this.onLog(`📲 SMS Triggered: ${alertTitle}`);
-        window.location.href = `sms:${CONFIG.primaryGuardianPhone}?body=${encodeURIComponent(smsText)}`;
+        this.onLog(`⚠️ Native SMS Bridge unavailable — check APK permissions`);
+        alert(`SMS Preview:\nTo: ${CONFIG.primaryGuardianPhone}\n${smsText}`);
       }
     } catch (err) {
       this.onLog(`⚠️ SMS Error: ${err.message}`);
